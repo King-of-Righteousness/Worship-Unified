@@ -1,0 +1,768 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0" />
+  <title>KOR | Worship Unified (Hybrid Library)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      /* Deep Slate Theme (Default) */
+      --bg: #0b1220;
+      --panel: #0f172a;
+      --card: #1e293b;
+      --muted: #9ca3af;
+      --text: #e5e7eb;
+      --accent: #10b981; /* Emerald */
+      --accent-hover: #059669;
+      --danger: #ef4444;
+      --chord: #ef4444; 
+      --border: rgba(255, 255, 255, 0.10);
+      --shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.5);
+      --r: 8px;
+      --input-bg: rgba(255,255,255,0.03);
+      --input-text: #e5e7eb;
+    }
+
+    /* Light Theme */
+    .light {
+      --bg: #f8fafc;
+      --panel: #ffffff;
+      --card: #f1f5f9;
+      --muted: #64748b;
+      --text: #0f172a;
+      --accent: #10b981;
+      --accent-hover: #059669;
+      --danger: #dc2626;
+      --chord: #dc2626;
+      --border: #e2e8f0;
+      --input-bg: #ffffff;
+      --input-text: #0f172a;
+      --shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.1);
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: 'Inter', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      height: 100vh;
+      width: 100%;
+      overflow-x: hidden;
+      display: flex;
+      flex-direction: column;
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+
+    /* === Header & Tabs === */
+    .app-header {
+      background: var(--panel);
+      border-bottom: 1px solid var(--border);
+      padding: 0 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 60px;
+      flex-shrink: 0;
+      transition: background 0.3s ease, border 0.3s ease;
+      position: relative;
+      z-index: 50;
+    }
+
+    .logo-area {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-shrink: 0;
+    }
+    .logo-area h1 {
+      margin: 0;
+      font-size: 18px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      white-space: nowrap;
+    }
+
+    @keyframes korPulse{ 
+      0%{transform:scale(1);box-shadow:0 0 0 rgba(59,130,246,0)} 
+      50%{transform:scale(1.05);box-shadow:0 0 20px rgba(59,130,246,0.3)} 
+      100%{transform:scale(1);box-shadow:0 0 0 rgba(59,130,246,0)} 
+    } 
+    .korLogo { 
+      width: 32px;
+      height: 32px; border-radius: 8px; 
+      background: var(--card); 
+      display: grid; 
+      place-items: center;
+      animation: korPulse 3s ease-in-out infinite;
+      border: 1px solid var(--border);
+      overflow: hidden;
+    }
+    .korLogo img {
+        width: 20px; height: 20px;
+        border-radius: 4px;
+        display: block;
+    }
+
+    /* Desktop Navigation Container */
+    .desktop-nav {
+        display: flex;
+        height: 100%; 
+        align-items: center;
+    }
+
+    .app-tabs {
+      display: flex;
+      gap: 8px;
+      height: 100%;
+    }
+
+    .tab-btn {
+      background: transparent;
+      border: none;
+      color: var(--muted);
+      font-family: inherit;
+      font-weight: 600;
+      font-size: 14px;
+      padding: 0 16px;
+      cursor: pointer;
+      height: 100%;
+      border-bottom: 3px solid transparent;
+      transition: all 0.2s;
+    }
+    .tab-btn:hover {
+      color: var(--text);
+      background: var(--card);
+    }
+    .tab-btn.active {
+      color: var(--accent);
+      border-bottom-color: var(--accent);
+    }
+
+    .icon-btn {
+        background: transparent;
+        border: 1px solid var(--border);
+        color: var(--muted);
+        width: 32px; height: 32px;
+        border-radius: 50%;
+        display: grid; place-items: center;
+        cursor: pointer;
+        transition: all 0.2s;
+        margin-left: 8px;
+    }
+    .icon-btn:hover {
+        background: var(--card);
+        color: var(--text);
+    }
+    .icon-btn.danger:hover {
+        background: rgba(239, 68, 68, 0.2);
+        color: var(--danger);
+        border-color: var(--danger);
+    }
+
+    /* === Mobile Menu & Dropdown === */
+    .mobile-menu-btn {
+        display: none;
+        /* Hidden on desktop */
+        background: transparent;
+        border: 1px solid var(--border);
+        color: var(--text);
+        padding: 6px 12px;
+        border-radius: var(--r);
+        cursor: pointer;
+        font-size: 20px;
+    }
+
+    .mobile-dropdown {
+        position: absolute;
+        top: 65px;
+        right: 10px;
+        width: 220px;
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        z-index: 1000;
+        opacity: 0;
+        transform: translateY(-10px);
+        pointer-events: none;
+        transition: opacity 0.2s ease, transform 0.2s ease;
+    }
+    
+    .mobile-dropdown.open {
+        opacity: 1;
+        transform: translateY(0);
+        pointer-events: all;
+    }
+
+    .menu-item {
+        padding: 14px 16px;
+        background: transparent;
+        border: none;
+        color: var(--text);
+        text-align: left;
+        font-family: inherit;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        border-bottom: 1px solid var(--border);
+    }
+    .menu-item:last-child { border-bottom: none; }
+    .menu-item:hover { background: var(--card); }
+    .menu-item.danger { color: var(--danger); }
+    .menu-item.danger:hover { background: rgba(239, 68, 68, 0.1); }
+
+    /* === Main Content === */
+    .app-content {
+      flex: 1;
+      position: relative;
+    }
+    .tab-pane {
+      display: none;
+      height: 100%;
+      overflow: hidden;
+      padding: 16px;
+    }
+    .tab-pane.active {
+      display: block;
+    }
+
+    /* === Utility Classes === */
+    .hidden { display: none !important; }
+    .btn {
+      background: var(--card);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 8px 16px;
+      border-radius: var(--r);
+      font-weight: 600;
+      cursor: pointer;
+      font-family: inherit;
+      transition: background 0.2s;
+    }
+    .btn:hover { background: var(--border); }
+    .btn:disabled { opacity: 0.6; cursor: not-allowed; }
+    .btn-primary { background: var(--accent); color: #fff; border: none; }
+    .btn-primary:hover { background: var(--accent-hover); }
+    
+    .mono-font { font-family: 'JetBrains Mono', monospace; }
+
+    /* === Editor Styles === */
+    .editor-layout { display: flex; height: 100%; width: 100%; gap: 0; }
+    
+    .editor-sidebar { 
+        width: 280px;
+        background: var(--card); 
+        border-right: 1px solid var(--border); 
+        display: flex; 
+        flex-direction: column; 
+        flex-shrink: 0; 
+        height: 100%;
+    }
+    .editor-main { flex: 1; display: flex; flex-direction: column; padding: 16px; gap: 12px; min-width: 0; overflow: hidden; }
+    
+    .sidebar-header { padding: 12px; display: flex; gap: 8px; border-bottom: 1px solid var(--border); background: var(--panel); flex-shrink: 0; }
+    
+    .song-list { 
+        list-style: none;
+        padding: 0; 
+        margin: 0; 
+        flex: 1; 
+        overflow-y: auto;
+        height: calc(100vh - 160px);
+    }
+    
+    .paneSong { padding: 10px 14px; border-bottom: 1px solid var(--border); cursor: pointer; transition: background 0.1s; }
+    .paneSong:hover { background: var(--bg); }
+    .paneSong.active { background: rgba(16, 185, 129, 0.1); border-left: 3px solid var(--accent); }
+    .paneSong .t { font-weight: 700; font-size: 14px; margin-bottom: 2px; }
+    .paneSong .a { font-size: 12px; color: var(--muted); }
+    
+    .sidebar-footer { padding: 8px 12px; font-size: 11px; color: var(--muted); border-top: 1px solid var(--border); background: var(--panel); flex-shrink: 0; }
+
+    .editor-toolbar { display: flex; justify-content: space-between; align-items: center; background: var(--card); padding: 8px 12px; border-radius: var(--r); border: 1px solid var(--border); flex-wrap: wrap; gap: 8px; }
+    .toolbar-group { display: flex; gap: 8px; align-items: center; }
+    
+    .editor-inputs { display: flex; gap: 10px; }
+    .editor-inputs .inp { flex: 1; }
+    
+    .editor-split { flex: 1; display: flex; gap: 12px; min-height: 0; }
+    .editor-area, .preview-area { flex: 1; height: 100%; border: 1px solid var(--border); border-radius: var(--r); padding: 12px; background: var(--input-bg); resize: none; overflow: auto; color: var(--text); outline: none; white-space: pre; line-height: 1.45; font-size: 14px; tab-size: 2; }
+    .preview-area { background: var(--panel); }
+    
+    .chord { color: var(--chord); font-weight: bold; }
+    .btn-small { padding: 4px 10px; font-size: 12px; }
+    .btn-danger { color: var(--danger); border-color: rgba(239,68,68,0.3); background: rgba(239,68,68,0.1); }
+    .btn-danger:hover { background: rgba(239,68,68,0.2); }
+
+    /* === Library Styles === */
+    .library-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; height: 100%; padding-bottom: 0; overflow: hidden; }
+    
+    .panel { 
+        border: 1px solid var(--border);
+        border-radius: var(--r); 
+        background: var(--card); 
+        display: flex; 
+        flex-direction: column; 
+        overflow: hidden; 
+        box-shadow: var(--shadow); 
+        height: 60vh; 
+        max-height: 100%;
+    }
+    .panelHead { padding: 10px 12px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; background: var(--panel); flex-shrink: 0; }
+    .panelHead .t { font-weight: 800; font-size: 14px; }
+    
+    .panelBody { 
+        display: flex;
+        gap: 10px; 
+        padding: 12px; 
+        flex: 1; 
+        min-height: 0; 
+        overflow: hidden;
+    }
+    
+    .leftCol { width: 60%; display: flex; flex-direction: column; min-height: 0; height: 100%; }
+    .rightCol { flex: 1; display: flex; flex-direction: column; min-height: 0; height: 100%; }
+    
+    .list { 
+        border: 1px solid var(--border);
+        border-radius: var(--r); 
+        background: var(--input-bg); 
+        overflow-y: auto; 
+        flex: 1; 
+        margin-top: 8px;
+    }
+    
+    .item { padding: 8px; border-bottom: 1px solid var(--border); cursor: pointer; display: flex; align-items: flex-start; gap: 8px; }
+    .item:hover { background: var(--bg); }
+    .item.active { background: rgba(16, 185, 129, 0.1); }
+    .item .name { font-weight: 700; font-size: 13px; word-break: break-all; }
+    .item .meta { font-size: 11px; color: var(--muted); margin-top: 2px; }
+    
+    .selectedCard { 
+        border: 1px solid var(--border);
+        border-radius: var(--r); 
+        background: var(--input-bg); 
+        padding: 0; 
+        display: flex; 
+        flex-direction: column; 
+        gap: 0; 
+        flex: 1; 
+        min-height: 0; 
+        overflow: hidden; 
+        position: relative;
+    }
+    
+    .selHeader { display: flex; justify-content: space-between; font-size: 13px; font-weight: 800; padding: 10px; border-bottom: 1px solid var(--border); background: var(--card); flex-shrink: 0; }
+    
+    .selList { 
+        background: var(--bg);
+        padding: 6px; 
+        flex: 1; 
+        overflow-y: auto; 
+        font-size: 12px; 
+        color: var(--muted); 
+        min-height: 0;
+    }
+    
+    .selFooter {
+        padding: 10px;
+        background: var(--card);
+        border-top: 1px solid var(--border);
+        flex-shrink: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+    
+    .warnBox { border: 1px solid var(--danger); background: rgba(239,68,68,0.1); padding: 8px; border-radius: 6px; font-size: 12px; color: var(--danger); }
+    .resultBox { border: 1px solid var(--border); background: var(--bg); padding: 8px; max-height: 100px; overflow-y: auto; font-size: 11px; margin-top: 8px; display: none; }
+    .progress { font-size: 12px; color: var(--muted); margin-top: 4px; text-align: center; }
+    .selItem { padding: 4px; border-bottom: 1px solid var(--border); }
+    .checkRow { display: flex; gap: 6px; align-items: center; }
+
+    /* === Setlist Modal === */
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0, 0, 0, 0.8);
+      backdrop-filter: blur(4px);
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .modal-card {
+      background: var(--panel);
+      width: 100%; max-width: 500px;
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow);
+      display: flex;
+      flex-direction: column;
+      max-height: 80vh;
+    }
+    .modal-header { padding: 16px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; font-weight: 800; }
+    .modal-body { padding: 16px; overflow-y: auto; flex: 1; background: var(--bg); }
+    .modal-footer { padding: 16px; border-top: 1px solid var(--border); display: flex; gap: 10px; }
+    
+    .setlist-item {
+        background: var(--card);
+        border: 1px solid var(--border);
+        padding: 8px 12px;
+        border-radius: 6px;
+        margin-bottom: 6px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    .drag-handle { cursor: grab; color: var(--muted); font-size: 18px; }
+    .sl-remove { color: var(--danger); cursor: pointer; margin-left: 10px; font-size: 14px; font-weight: bold; }
+    .quick-actions { margin-left: auto; display: flex; gap: 4px; }
+    .action-btn { 
+        padding: 2px 6px; 
+        font-size: 10px;
+        border: 1px solid var(--border); 
+        border-radius: 4px; 
+        background: var(--bg); 
+        color: var(--text);
+        cursor: pointer;
+    }
+    .action-btn:hover { background: var(--border); }
+
+    /* === Security Overlay === */
+    .security-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(11, 18, 32, 0.95);
+      backdrop-filter: blur(8px);
+      z-index: 9999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .login-box {
+      background: var(--panel);
+      padding: 20px;
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      width: 90%; 
+      max-width: 320px;
+      text-align: center;
+      box-shadow: var(--shadow);
+    }
+    .inp {
+      width: 100%;
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 10px 12px;
+      background: var(--input-bg);
+      color: var(--input-text);
+      outline: none;
+      font-family: inherit;
+    }
+    .inp:focus { border-color: var(--accent); }
+    
+    select.inp {
+        background-color: #1e293b;
+        color: #f1f5f9;
+    }
+    .light select.inp {
+        background-color: #ffffff;
+        color: #0f172a;
+    }
+
+    /* === Mobile Responsive === */
+    .mobile-visible { display: none !important; }
+
+    @media (max-width: 768px) {
+      /* Hide Desktop Nav */
+      .desktop-nav { display: none !important; }
+      
+      /* Show Mobile Menu Button */
+      .mobile-menu-btn { display: block !important; }
+
+      body { height: auto !important; min-height: 100vh; overflow-x: hidden; }
+      .app-content { height: auto !important; overflow: visible !important; }
+      
+      .mobile-visible { display: inline-flex !important; }
+      
+      .app-header { padding: 0 16px; height: 50px; flex-shrink: 0; }
+      .logo-area h1 { font-size: 16px; }
+      
+      /* Library Mobile */
+      .library-grid { grid-template-columns: 1fr; height: auto; overflow: visible; display: block; }
+      .panel { height: 500px; margin-bottom: 20px; }
+      
+      /* Editor Mobile */
+      .editor-layout { position: relative; height: auto !important; overflow: visible !important; }
+      
+      .editor-sidebar {
+        position: fixed;
+        top: 50px; 
+        left: 0;
+        width: 100%; 
+        height: calc(100vh - 50px); 
+        z-index: 20;
+        transition: transform 0.3s ease;
+        background: var(--card);
+      }
+      .editor-sidebar.mobile-collapsed {
+        transform: translateX(-100%);
+      }
+      
+      .editor-main {
+        width: 100%;
+        padding: 10px;
+        height: auto !important;
+        overflow: visible !important;
+      }
+      
+      .editor-toolbar {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+      }
+      .toolbar-group { justify-content: space-between; }
+      
+      .editor-inputs { flex-direction: column; gap: 8px; }
+      .editor-inputs .inp { width: 100%; }
+      #keyInput { width: 100% !important; flex: none !important; }
+
+      .editor-split { 
+        display: flex; 
+        flex-direction: column;
+        overflow: visible;
+      }
+      
+      .editor-area, .preview-area { display: none; }
+      
+      .editor-area.active-pane-mobile, .preview-area.active-pane-mobile { 
+          display: block;
+          flex: none;
+          height: auto !important;
+          min-height: 60vh;
+          overflow: visible; 
+          padding-bottom: 20px;
+      }
+    }
+
+  </style>
+</head>
+<body data-theme="dark">
+
+  <div id="securityOverlay" class="security-overlay">
+    <div class="login-box">
+      <div class="korLogo" style="margin: 0 auto 20px;"><img src="https://lh3.googleusercontent.com/d/1iLMCP2wh8e4BdxM_rds3W1GxkX0LVUqi=s220" alt="K" /></div>
+      <h2 style="margin-bottom: 20px;">Worship Unified</h2>
+      <input type="email" id="loginEmail" placeholder="Email" class="inp" style="margin-bottom: 8px;" />
+      <input type="password" id="loginPass" placeholder="Password" class="inp" />
+      <button id="loginBtn" class="btn btn-primary" style="width:100%; margin-top:16px;">Login</button>
+      <p id="loginMsg" style="color:var(--danger); font-size:12px; margin-top:10px; min-height:1em;"></p>
+    </div>
+  </div>
+
+  <div id="setlistModal" class="modal-overlay hidden">
+     <div class="modal-card">
+        <div class="modal-header">
+           <div style="display:flex;align-items:center;gap:10px;">
+               <span>Setlist Manager</span>
+               <button onclick="window.regenerateSetlist()" class="btn btn-small" title="Fix IDs / Regenerate">♻️ Recycle</button>
+           </div>
+           <button onclick="window.closeSetlistModal()" style="background:none;border:none;color:var(--muted);cursor:pointer;">✕</button>
+        </div>
+        <div class="modal-body" id="setlistBody"></div>
+        <div class="modal-footer">
+           <button class="btn" onclick="window.closeSetlistModal()" style="flex:1">Cancel</button>
+           <button class="btn btn-primary" id="saveSetlistBtn" style="flex:1">Save Setlist</button>
+        </div>
+     </div>
+  </div>
+
+  <div class="app-wrap">
+    <header class="app-header">
+       <div class="logo-area">
+          <div class="korLogo"><img src="https://lh3.googleusercontent.com/d/1iLMCP2wh8e4BdxM_rds3W1GxkX0LVUqi=s220" alt="K" /></div>
+          <h1>Worship Unified</h1>
+       </div>
+       
+       <div class="desktop-nav">
+           <button id="setlistBtn" class="btn btn-small" style="margin-right:12px;">Setlist</button>
+           
+           <nav class="app-tabs">
+              <button class="tab-btn active" onclick="window.switchTab('editor')">Editor</button>
+              <button class="tab-btn" id="libTabBtn" onclick="window.switchTab('library')">Library Management</button>
+           </nav>
+           <button id="themeToggleBtn" class="icon-btn" title="Toggle Theme">🌙</button>
+           <button id="logoutBtn" class="icon-btn danger" title="Log Off">🚪</button>
+       </div>
+
+       <button id="mobileMenuTrigger" class="mobile-menu-btn" onclick="window.toggleMobileMenu()">☰</button>
+       
+       <div id="mobileDropdown" class="mobile-dropdown">
+           <button class="menu-item" onclick="window.openSetlistMobile()">📜 Setlist Manager</button>
+           <button class="menu-item" onclick="window.switchTabMobile('editor')">📝 Editor</button>
+           <button class="menu-item" id="mLibTabBtn" onclick="window.switchTabMobile('library')">📚 Library Management</button>
+           <button class="menu-item" id="mThemeBtn">🌙 Toggle Theme</button>
+           <button class="menu-item danger" onclick="window.logout()">🚪 Log Off</button>
+        </div>
+    </header>
+
+    <main class="app-content">
+       <div id="tab-editor" class="tab-pane active" style="padding:0;">
+          <div class="editor-layout">
+            <div class="editor-sidebar">
+              <div class="sidebar-header">
+                <input id="searchInput" placeholder="Search..." class="inp" style="font-size:13px;" />
+                <button id="refreshBtn" class="btn btn-small" title="Refresh">↻</button>
+              </div>
+              <ul id="songListPane" class="song-list"></ul>
+              <div class="sidebar-footer">
+                <div id="loadMeta">Ready</div>
+              </div>
+            </div>
+            
+            <div class="editor-main">
+              <div class="editor-toolbar">
+                 <div class="toolbar-group">
+                    <button id="mobileBackBtn" class="btn btn-small mobile-visible">← Back</button>
+                    <button id="newSongBtn" class="btn btn-small">+ New</button>
+                    <button id="saveBtn" class="btn btn-small btn-primary">Save (Dual Sync)</button>
+                    <button id="deleteBtn" class="btn btn-small btn-danger">Delete</button>
+					<button id="formatMobileBtn" class="btn btn-secondary">📱 Wrap for Mobile</button>
+                 </div>
+                 
+                 <div class="toolbar-group mobile-visible" style="display:none; justify-content:center; gap:0;">
+                    <button id="mobileEditToggle" class="btn btn-small active" style="border-radius: 8px 0 0 8px; border-right:none;">Edit</button>
+                    <button id="mobilePreviewToggle" class="btn btn-small" style="border-radius: 0 8px 8px 0;">Preview</button>
+                 </div>
+                 <div class="toolbar-group">
+                    <label class="meta" style="font-size:12px;color:var(--muted)">Trans:</label>
+                    <button id="transDown" class="btn btn-small">-</button>
+                    <span id="currentTrans" style="width:20px;text-align:center;font-size:14px;font-weight:bold">0</span>
+                    <button id="transUp" class="btn btn-small">+</button>
+                    <select id="sharpFlatPref" class="inp" style="width:60px; padding:2px; font-size:11px; height:24px;">
+                        <option value="sharps">#</option>
+                        <option value="flats">b</option>
+                    </select>
+                 </div>
+            
+                </div>
+              
+              <div class="editor-inputs">
+                 <input id="titleInput" placeholder="Song Title" class="inp" style="flex:2" />
+                 <input id="artistInput" placeholder="Artist" class="inp" style="flex:1" />
+                 <select id="keyInput" class="inp" style="width:80px; flex:0 0 80px;"></select>
+              </div>
+              
+              <div class="editor-split">
+                 <textarea id="contentInput" class="mono-font editor-area" placeholder="Lyrics & Chords..." spellcheck="false"></textarea>
+                 <div id="previewArea" class="mono-font preview-area"></div>
+            
+                </div>
+              
+              <div style="font-size:11px; color:var(--muted); display:flex; justify-content:space-between;">
+                 <span id="fileMeta">-</span>
+                 <span>Ctrl+S to Save</span>
+              </div>
+            </div>
+          </div>
+       </div>
+       <div id="tab-library" class="tab-pane">
+         
+         <div class="library-grid">
+            <section class="panel">
+               <div class="panelHead">
+                  <div class="t">PUBLIC Library</div>
+                  <div class="actions">
+                     <button id="pubRefreshBtn" class="btn btn-small">Refresh</button>
+                     <button id="pubSelectAllBtn" class="btn btn-small">All</button>
+                     <button id="pubClearBtn" class="btn btn-small">Clear</button>
+                  </div>
+               </div>
+               <div class="panelBody">
+       
+                  <div class="leftCol">
+                     <input id="pubSearch" placeholder="Search filename..." class="inp" style="margin-bottom:8px;" />
+                     <div id="pubList" class="list"></div>
+                  </div>
+       
+                  <div class="rightCol">
+                      <div class="selectedCard">
+                        <div class="selHeader">
+                          <div class="title">Selected (Public)</div>
+                          <div class="selCount"><span id="pubSelCount">0</span></div>
+                        </div>
+                        <div id="pubSelList" class="selList"></div>
+          
+                       <div class="selFooter">
+                     
+                             <div class="warnBox" id="pubWarn" style="display:none">
+                               <div class="checkRow">
+                                  <input type="checkbox" id="pubConfirmMove">
+                                   <label for="pubConfirmMove" style="margin:0;color:var(--danger)">Confirm MOVE -> Private</label>
+                               </div>
+                            </div>
+                       
+                            <button id="pubMoveBtn" class="btn btn-danger btn-small" style="width:100%">Move Selected -> Private</button>
+                            <div id="pubProgress" class="progress"></div>
+                            <div class="resultBox" id="pubResults"></div>
+                        </div>
+                   </div>
+                  </div>
+               </div>
+            </section>
+
+            <section class="panel">
+               <div class="panelHead">
+                  <div class="t">PRIVATE Library</div>
+                  <div class="actions">
+                     <button id="priRefreshBtn" class="btn btn-small">Refresh</button>
+                     <button id="priSelectAllBtn" class="btn btn-small">All</button>
+                     <button id="priClearBtn" class="btn btn-small">Clear</button>
+                  </div>
+               </div>
+               <div class="panelBody">
+                  <div class="leftCol">
+                    <input id="priSearch" placeholder="Search filename..." class="inp" style="margin-bottom:8px;" />
+                      <div id="priList" class="list"></div>
+                  </div>
+                  <div class="rightCol">
+                      <div class="selectedCard">
+                       <div class="selHeader">
+                          <div class="title">Selected (Private)</div>
+                          <div class="selCount"><span id="priSelCount">0</span></div>
+                       </div>
+            
+                        <div id="priSelList" class="selList"></div>
+                        <div class="selFooter">
+                            <button id="priPublishBtn" class="btn btn-primary btn-small" style="width:100%">Publish -> Public (Copy)</button>
+                            <button id="priDeleteBtn" class="btn btn-danger btn-small" style="width:100%; margin-top: 4px;">Delete Selected</button>
+                            <div id="priProgress" class="progress"></div>
+                             <div class="resultBox" id="priResults"></div>
+                        </div>
+                      </div>
+                  </div>
+                </div>
+            </section>
+          
+        </div>
+       </div>
+    </main>
+  </div>
+
+  <script src="api.js"></script>
+  <script src="app.js"></script>
+  <script type="module" src="firebase-service.js"></script>
+</body>
+</html>
