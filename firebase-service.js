@@ -2,6 +2,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebas
 import { getDatabase, ref, set, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 import { getFirestore, doc, getDoc, updateDoc, serverTimestamp as firestoreTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { logLogin } from "./login-log.js";
 
 // 2. CONFIGURATION
 const firebaseConfig = {
@@ -167,6 +168,9 @@ console.log("🔥 Firebase Hybrid Library & Auth Active");
 // 1. LOGIN TRACKER 
 onAuthStateChanged(auth, (user) => {
     if (user) {
+        // --- NEW: LOG LOGIN EVENT ---
+        logLogin(db, user.uid, "Worhip Editor Suite (Lyrics|Chords)");
+
         updateDoc(doc(firestore, "users", user.uid), {
             lastLogin: firestoreTimestamp()
         }).then(() => {
