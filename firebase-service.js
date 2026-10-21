@@ -40,7 +40,7 @@ function resetIdleTimer() {
 const activityEvents = ['mousedown', 'mousemove', 'keydown', 'scroll', 'touchstart'];
 activityEvents.forEach(evt => document.addEventListener(evt, resetIdleTimer));
 
-// 4. AUTH STATE LISTENER (🔥 UPDATED FOR MULTI-ROLE)
+// 4. AUTH STATE LISTENER (🔥 UPDATED FOR MULTI-ROLE & LOGGING)
 const overlay = document.getElementById('securityOverlay');
 const statusMsg = document.getElementById('loginMsg');
 
@@ -73,6 +73,20 @@ onAuthStateChanged(window.auth, async (user) => {
 
             if (hasAccess) {
                  console.log(`✅ Welcome ${data.displayName || user.email} [${userRoles.join(', ')}]`);
+                 
+                 // --- LOG LOGIN EVENT & FIRESTORE TRACKER ---
+                 // This now safely triggers ONLY if the user has a valid role and active account
+                 logLogin(db, user.uid, "Worship Editor Suite (Lyrics|Chords)");
+                 
+                 updateDoc(doc(firestore, "users", user.uid), {
+                     lastLogin: firestoreTimestamp()
+                 }).then(() => {
+                     console.log("✅ Login timestamp updated successfully.");
+                 }).catch((error) => {
+                     console.error("⚠️ Failed to update timestamp:", error);
+                 });
+
+                 // Unlock the UI
                  unlockDashboard(userRoles);
             } else {
                  throw new Error("Access Denied: Restricted Role.");
@@ -135,14 +149,12 @@ function unlockDashboard(roles) {
 
 // --- HYBRID EXPORTS ---
 window.firebaseSaveSetlistConfig = (playlist) => {
-    // 🎯 POINT TO THE NEW MASTER CONFIG FOLDER
     const r = ref(db, 'library/configs/arrange_songs');
     return set(r, { playlist: playlist, updatedAt: serverTimestamp() });
 };
 
 window.firebasePublishSong = (song) => {
     if(!song.id) song.id = 'song_' + Math.random().toString(36).substr(2, 9);
-    // 🎯 POINT TO THE NEW MASTER SONG FOLDER AND TAG AS PUBLIC
     song.isPublic = true; 
     const r = ref(db, 'library/songs/' + song.id);
     return set(r, song);
@@ -164,19 +176,3 @@ window.signalLibraryUpdate = (action) => {
 };
 
 console.log("🔥 Firebase Hybrid Library & Auth Active");
-
-// 1. LOGIN TRACKER 
-onAuthStateChanged(auth, (user) => {
-    if (user) {
-        // --- NEW: LOG LOGIN EVENT ---
-        logLogin(db, user.uid, "Worhip Editor Suite (Lyrics|Chords)");
-
-        updateDoc(doc(firestore, "users", user.uid), {
-            lastLogin: firestoreTimestamp()
-        }).then(() => {
-            console.log("Login timestamp updated successfully.");
-        }).catch((error) => {
-            console.error("Failed to update timestamp:", error);
-        });
-    }
-});
