@@ -1,0 +1,557 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#272727" />
+  <title>KOR | Worship Unified (Hybrid Library)</title>
+  <link rel="icon" type="image/ico" href="favicon.ico">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Apply saved colour theme + light/dark before first paint (no flash). Accent key is shared with the other Worship tools. -->
+  <script>
+    try {
+      document.documentElement.setAttribute('data-theme', localStorage.getItem('worship-theme') || 'indigo');
+      if (localStorage.getItem('kor_theme') === 'dark') document.documentElement.classList.add('dark');
+    } catch (e) { document.documentElement.setAttribute('data-theme', 'indigo'); }
+  </script>
+
+  <style>
+    /* =====================================================
+       WORSHIP UNIFIED · same design family as Hub / Worship Suite
+       ===================================================== */
+    :root {
+      --accent: #4F46E5; --accent-hover: #4338CA; --accent-rgb: 79, 70, 229;
+      --dark: #272727;
+      --bg: #f6f6f7; --panel: #ffffff; --card: #ffffff; --surface: #fafafa;
+      --text: #1f1f23; --muted: #8a8a93; --border: #e3e3e6;
+      --danger: #DC2626; --ok: #059669;
+      --chord: #C2261B;
+      --input-bg: #ffffff; --input-text: #1f1f23;
+      --shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+      --r: 12px;
+      --ease: cubic-bezier(0.16, 1, 0.3, 1);
+      --font: 'Poppins', 'Segoe UI', Tahoma, sans-serif;
+      --mono: 'JetBrains Mono', ui-monospace, Menlo, monospace;
+      color-scheme: light;
+    }
+    :root[data-theme="red"]     { --accent: #DA291C; --accent-hover: #C4241A; --accent-rgb: 218, 41, 28; }
+    :root[data-theme="emerald"] { --accent: #059669; --accent-hover: #047857; --accent-rgb: 5, 150, 105; }
+
+    /* Dark mode (toggle in the header) */
+    :root.dark {
+      --dark: #131417;
+      --bg: #0e0f12; --panel: #17181c; --card: #1b1c21; --surface: #212227;
+      --text: #ececef; --muted: #9a9aa4; --border: rgba(255, 255, 255, 0.10);
+      --danger: #f87171; --ok: #34d399;
+      --chord: #fb7185;
+      --input-bg: #14151a; --input-text: #ececef;
+      --shadow: 0 6px 24px rgba(0, 0, 0, 0.45);
+      color-scheme: dark;
+    }
+
+    * { box-sizing: border-box; }
+    html { -webkit-text-size-adjust: 100%; -webkit-tap-highlight-color: transparent; }
+    body {
+      margin: 0; font-family: var(--font); font-size: 14px; line-height: 1.5;
+      background: var(--bg); color: var(--text);
+      height: 100vh; height: 100dvh; width: 100%; overflow-x: hidden;
+      display: flex; flex-direction: column;
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+    button { font-family: inherit; }
+    button:focus-visible, .inp:focus-visible, .item:focus-visible, .paneSong:focus-visible { outline: none; box-shadow: 0 0 0 3px rgba(var(--accent-rgb), 0.35); }
+    .hidden { display: none !important; }
+    .mono-font { font-family: var(--mono); }
+
+    /* ---------- buttons / inputs ---------- */
+    .btn {
+      background: var(--card); border: 1px solid var(--border); color: var(--text);
+      padding: 9px 16px; border-radius: 10px; font-weight: 600; font-size: 13px; cursor: pointer;
+      display: inline-flex; align-items: center; justify-content: center; gap: 6px; white-space: nowrap;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+      transition: all 0.2s var(--ease);
+    }
+    .btn:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(var(--accent-rgb), 0.18); }
+    .btn:active:not(:disabled) { transform: scale(0.97); }
+    .btn:disabled { opacity: 0.55; cursor: not-allowed; }
+    .btn-primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+    .btn-primary:hover:not(:disabled) { background: var(--accent-hover); border-color: var(--accent-hover); color: #fff; }
+    .btn-secondary { background: rgba(var(--accent-rgb), 0.08); border-color: rgba(var(--accent-rgb), 0.25); color: var(--accent); }
+    .btn-danger { color: var(--danger); border-color: rgba(220,38,38,0.3); background: rgba(220,38,38,0.06); }
+    .btn-danger:hover:not(:disabled) { background: rgba(220,38,38,0.14); border-color: var(--danger); color: var(--danger); box-shadow: 0 4px 12px rgba(220,38,38,0.18); }
+    .btn-danger.solid { background: var(--danger); border-color: var(--danger); color: #fff; }
+    .btn-small { padding: 6px 12px; font-size: 12px; border-radius: 9px; }
+
+    .inp {
+      width: 100%; border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px;
+      background: var(--input-bg); color: var(--input-text); outline: none; font-family: inherit; font-size: 13.5px;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .inp::placeholder { color: var(--muted); opacity: 0.8; }
+    .inp:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(var(--accent-rgb), 0.15); }
+    select.inp { background-color: var(--input-bg); color: var(--input-text); cursor: pointer; }
+
+    /* ---------- header ---------- */
+    .app-wrap { display: flex; flex-direction: column; flex: 1; min-height: 0; }
+    .app-header {
+      background: var(--dark); color: #fff; padding: 0 20px; height: 64px; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: space-between; gap: 12px;
+      border-radius: 0 0 20px 20px; position: relative; z-index: 50;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.12);
+    }
+    .app-header::before { content: ""; position: absolute; width: 220px; height: 220px; border-radius: 50%; background: var(--accent); opacity: 0.18; top: -150px; right: 10%; pointer-events: none; transition: background 0.4s; }
+    .logo-area { display: flex; align-items: center; gap: 12px; flex-shrink: 0; position: relative; }
+    .logo-area h1 { margin: 0; font-size: 17px; font-weight: 700; letter-spacing: -0.2px; white-space: nowrap; }
+    .logo-area h1 small { display: block; font-size: 10.5px; font-weight: 500; color: #a1a1aa; letter-spacing: 0.04em; margin-top: -2px; }
+
+    @keyframes korPulse { 0%,100% { transform: scale(1); box-shadow: 0 0 0 rgba(var(--accent-rgb),0); } 50% { transform: scale(1.05); box-shadow: 0 0 20px rgba(var(--accent-rgb),0.45); } }
+    .korLogo { width: 36px; height: 36px; border-radius: 11px; background: #fff; display: grid; place-items: center; animation: korPulse 3s ease-in-out infinite; border: 1px solid var(--border); overflow: hidden; flex-shrink: 0; }
+    .korLogo img { width: 22px; height: 22px; border-radius: 5px; display: block; }
+
+    .desktop-nav { display: flex; height: 100%; align-items: center; gap: 10px; position: relative; }
+    .desktop-nav .btn { background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.14); color: #fff; box-shadow: none; }
+    .desktop-nav .btn:hover:not(:disabled) { background: rgba(255,255,255,0.16); border-color: rgba(255,255,255,0.3); color: #fff; box-shadow: none; }
+    .app-tabs { display: flex; gap: 4px; padding: 4px; background: rgba(255,255,255,0.07); border-radius: 12px; }
+    .tab-btn { background: transparent; border: none; color: #d4d4d8; font-weight: 600; font-size: 13px; padding: 7px 16px; border-radius: 9px; cursor: pointer; transition: all 0.2s var(--ease); white-space: nowrap; }
+    .tab-btn:hover { color: #fff; background: rgba(255,255,255,0.1); }
+    .tab-btn.active { background: var(--accent); color: #fff; box-shadow: 0 3px 10px rgba(var(--accent-rgb), 0.45); }
+
+    .theme-switch { display: flex; gap: 7px; align-items: center; padding: 0 6px; }
+    .theme-dot { width: 18px; height: 18px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.25); padding: 0; cursor: pointer; transition: transform 0.2s var(--ease); }
+    .theme-dot[data-theme="indigo"] { background: #4F46E5; } .theme-dot[data-theme="red"] { background: #DA291C; } .theme-dot[data-theme="emerald"] { background: #059669; }
+    .theme-dot:hover { transform: scale(1.15); }
+    .theme-dot.active { border-color: #fff; box-shadow: 0 0 0 3px rgba(255,255,255,0.18); }
+
+    .icon-btn { background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.14); color: #fff; width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; cursor: pointer; transition: all 0.2s var(--ease); margin-left: 0; font-size: 15px; }
+    .icon-btn:hover { background: rgba(255,255,255,0.18); transform: translateY(-1px); }
+    .icon-btn.danger:hover { background: rgba(239,68,68,0.3); border-color: #f87171; }
+
+    /* ---------- mobile menu ---------- */
+    .mobile-menu-btn { display: none; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.14); color: #fff; padding: 6px 12px; border-radius: 10px; cursor: pointer; font-size: 20px; position: relative; }
+    .mobile-dropdown {
+      position: absolute; top: calc(100% + 8px); right: 10px; width: 240px; background: var(--panel); color: var(--text);
+      border: 1px solid var(--border); border-radius: 16px; box-shadow: 0 16px 40px rgba(0,0,0,0.3);
+      display: flex; flex-direction: column; overflow: hidden; z-index: 1000;
+      opacity: 0; transform: translateY(-10px) scale(0.97); pointer-events: none; transition: opacity 0.2s ease, transform 0.25s var(--ease);
+    }
+    .mobile-dropdown.open { opacity: 1; transform: none; pointer-events: all; }
+    .menu-item { padding: 13px 16px; background: transparent; border: none; border-bottom: 1px solid var(--border); color: var(--text); text-align: left; font-size: 14px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 10px; width: 100%; }
+    .menu-item:last-child { border-bottom: none; }
+    .menu-item:hover { background: rgba(var(--accent-rgb), 0.07); color: var(--accent); }
+    .menu-item.danger { color: var(--danger); } .menu-item.danger:hover { background: rgba(220,38,38,0.08); }
+    .menu-item.static { cursor: default; justify-content: space-between; } .menu-item.static:hover { background: transparent; color: var(--text); }
+    .menu-item .theme-dot { border-color: var(--border); }
+    .menu-item .theme-dot.active { border-color: var(--text); box-shadow: 0 0 0 3px rgba(var(--accent-rgb), 0.2); }
+
+    /* ---------- main ---------- */
+    .app-content { flex: 1; position: relative; min-height: 0; }
+    .tab-pane { display: none; height: 100%; overflow: hidden; padding: 16px; }
+    .tab-pane.active { display: block; }
+    #tab-editor { padding: 16px; }
+
+    /* ---------- editor ---------- */
+    .editor-layout { display: flex; height: 100%; width: 100%; gap: 16px; }
+    .editor-sidebar { width: 300px; background: var(--card); border: 1px solid var(--border); border-radius: 18px; display: flex; flex-direction: column; flex-shrink: 0; height: 100%; overflow: hidden; box-shadow: var(--shadow); }
+    .editor-main { flex: 1; display: flex; flex-direction: column; gap: 12px; min-width: 0; overflow: hidden; }
+
+    .sidebar-header { padding: 12px; display: flex; gap: 8px; border-bottom: 1px solid var(--border); background: var(--panel); flex-shrink: 0; position: relative; }
+    .sidebar-header .inp { padding-left: 34px; border-radius: 12px; }
+    .sidebar-header::before { content: "🔍"; position: absolute; left: 24px; top: 50%; transform: translateY(-50%); font-size: 12px; opacity: 0.55; pointer-events: none; }
+    .sidebar-header .btn { flex-shrink: 0; }
+
+    .song-list { list-style: none; padding: 8px; margin: 0; flex: 1; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; gap: 6px; }
+    .paneSong {
+      position: relative; display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 12px; cursor: pointer;
+      border: 1px solid transparent; background: transparent; transition: all 0.2s var(--ease);
+    }
+    .paneSong::before { content: ""; position: absolute; left: 0; top: 10px; bottom: 10px; width: 3px; border-radius: 3px; background: var(--accent); transform: scaleY(0); transition: transform 0.25s var(--ease); }
+    .paneSong:hover { background: var(--surface); border-color: var(--border); transform: translateX(3px); }
+    .paneSong.active { background: rgba(var(--accent-rgb), 0.09); border-color: rgba(var(--accent-rgb), 0.35); }
+    .paneSong.active::before, .paneSong:hover::before { transform: scaleY(1); }
+    .song-ico { width: 34px; height: 34px; border-radius: 10px; display: grid; place-items: center; background: rgba(var(--accent-rgb), 0.1); color: var(--accent); font-size: 15px; flex-shrink: 0; }
+    .song-text { min-width: 0; flex: 1; }
+    .paneSong .t { font-weight: 600; font-size: 13.5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .paneSong .a { font-size: 11.5px; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .key-chip { font-family: var(--mono); font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 999px; background: var(--surface); border: 1px solid var(--border); color: var(--muted); flex-shrink: 0; }
+    .paneSong.active .key-chip { background: var(--accent); border-color: var(--accent); color: #fff; }
+    .empty-note { text-align: center; color: var(--muted); font-size: 13px; padding: 28px 12px; }
+
+    .sidebar-footer { padding: 10px 14px; font-size: 11.5px; color: var(--muted); border-top: 1px solid var(--border); background: var(--panel); flex-shrink: 0; font-weight: 500; }
+
+    .editor-toolbar { display: flex; justify-content: space-between; align-items: center; background: var(--card); padding: 10px 12px; border-radius: 16px; border: 1px solid var(--border); flex-wrap: wrap; gap: 8px; box-shadow: var(--shadow); }
+    .toolbar-group { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+    .toolbar-group .meta { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); }
+    #currentTrans { min-width: 28px; text-align: center; font-size: 14px; font-weight: 700; font-family: var(--mono); color: var(--accent); }
+    #sharpFlatPref { width: 64px; padding: 5px 8px; font-size: 12px; height: 30px; }
+
+    .editor-inputs { display: flex; gap: 10px; }
+    .editor-inputs .inp { flex: 1; }
+    #titleInput { font-weight: 600; font-size: 15px; }
+
+    .editor-split { flex: 1; display: flex; gap: 12px; min-height: 0; }
+    .editor-area, .preview-area {
+      flex: 1; height: 100%; min-width: 0; border: 1px solid var(--border); border-radius: 16px; padding: 14px 16px;
+      background: var(--input-bg); resize: none; overflow: auto; color: var(--text); outline: none;
+      white-space: pre; line-height: 1.55; font-size: 13.5px; tab-size: 2; box-shadow: var(--shadow);
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .editor-area:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(var(--accent-rgb), 0.15); }
+    .editor-area::placeholder { color: var(--muted); opacity: 0.7; }
+    .preview-area { background: var(--card); }
+    .chord { color: var(--chord); font-weight: 700; }
+
+    .editor-foot { font-size: 11.5px; color: var(--muted); display: flex; justify-content: space-between; gap: 10px; align-items: center; padding: 0 4px; flex-wrap: wrap; }
+    #fileMeta { font-weight: 600; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 50%; }
+    #saveState { font-weight: 500; }
+    #saveState.dirty { color: #D97706; font-weight: 600; }
+    #saveState.ok { color: var(--ok); } #saveState.bad { color: var(--danger); }
+    kbd { font-family: var(--mono); font-size: 10.5px; padding: 1px 6px; border-radius: 5px; border: 1px solid var(--border); background: var(--surface); }
+
+    /* ---------- library ---------- */
+    .library-grid { display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: minmax(0, 1fr); gap: 16px; height: 100%; overflow: hidden; }
+    .panel { border: 1px solid var(--border); border-radius: 18px; background: var(--card); display: flex; flex-direction: column; overflow: hidden; box-shadow: var(--shadow); height: 100%; min-height: 0; transition: box-shadow 0.3s var(--ease), border-color 0.3s; }
+    .panel:hover { border-color: rgba(var(--accent-rgb), 0.35); }
+    .panelHead { padding: 12px 14px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; gap: 8px; background: var(--panel); flex-shrink: 0; flex-wrap: wrap; }
+    .panelHead .t { font-weight: 700; font-size: 14px; display: flex; align-items: center; gap: 8px; }
+    .panelHead .t::before { content: ""; width: 9px; height: 9px; border-radius: 50%; background: var(--ok); }
+    .panel.private .panelHead .t::before { background: #a1a1aa; }
+    .panelHead .actions { display: flex; gap: 6px; }
+    .panelBody { display: flex; gap: 12px; padding: 12px; flex: 1; min-height: 0; overflow: hidden; }
+    .leftCol { width: 58%; display: flex; flex-direction: column; min-height: 0; height: 100%; }
+    .rightCol { flex: 1; display: flex; flex-direction: column; min-height: 0; height: 100%; min-width: 0; }
+    .list { border: 1px solid var(--border); border-radius: 14px; background: var(--input-bg); overflow-y: auto; flex: 1; margin-top: 8px; padding: 6px; }
+    .item { padding: 9px 12px; border-radius: 10px; cursor: pointer; display: flex; align-items: center; gap: 10px; border: 1px solid transparent; margin-bottom: 4px; transition: all 0.18s var(--ease); }
+    .item:hover { background: var(--surface); border-color: var(--border); }
+    .item.active { background: rgba(var(--accent-rgb), 0.09); border-color: rgba(var(--accent-rgb), 0.4); }
+    .item::after { content: ""; width: 18px; height: 18px; border-radius: 6px; border: 2px solid var(--border); flex-shrink: 0; order: 2; transition: all 0.18s; }
+    .item.active::after { background: var(--accent) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12l5 5L20 7'/%3E%3C/svg%3E") center/12px no-repeat; border-color: var(--accent); }
+    .item .name { font-weight: 600; font-size: 13px; word-break: break-word; }
+    .item .meta { font-size: 11px; color: var(--muted); margin-top: 1px; }
+
+    .selectedCard { border: 1px solid var(--border); border-radius: 14px; background: var(--input-bg); display: flex; flex-direction: column; flex: 1; min-height: 0; overflow: hidden; }
+    .selHeader { display: flex; justify-content: space-between; align-items: center; font-size: 12.5px; font-weight: 700; padding: 10px 12px; border-bottom: 1px solid var(--border); background: var(--panel); flex-shrink: 0; }
+    .selCount { min-width: 26px; text-align: center; padding: 1px 9px; border-radius: 999px; background: var(--accent); color: #fff; font-size: 12px; }
+    .selList { background: var(--input-bg); padding: 6px; flex: 1; overflow-y: auto; font-size: 12px; color: var(--muted); min-height: 0; }
+    .selItem { padding: 6px 8px; border-radius: 8px; background: var(--surface); margin-bottom: 4px; color: var(--text); font-weight: 500; word-break: break-word; }
+    .selFooter { padding: 10px; background: var(--panel); border-top: 1px solid var(--border); flex-shrink: 0; display: flex; flex-direction: column; gap: 8px; }
+    .selFooter .btn { width: 100%; }
+    .warnBox { border: 1px solid rgba(220,38,38,0.35); background: rgba(220,38,38,0.07); padding: 8px 10px; border-radius: 10px; font-size: 12px; color: var(--danger); }
+    .warnBox label { cursor: pointer; font-weight: 600; }
+    .resultBox { border: 1px solid var(--border); background: var(--surface); padding: 8px; max-height: 100px; overflow-y: auto; font-size: 11px; display: none; border-radius: 8px; }
+    .progress { font-size: 12px; color: var(--muted); text-align: center; }
+    .checkRow { display: flex; gap: 8px; align-items: center; }
+    .checkRow input { width: 16px; height: 16px; accent-color: var(--danger); }
+
+    /* ---------- modals ---------- */
+    .modal-overlay { position: fixed; inset: 0; background: rgba(20,20,22,0.6); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); z-index: 100; display: flex; align-items: center; justify-content: center; padding: 20px; animation: fade 0.25s ease; }
+    @keyframes fade { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes pop { from { opacity: 0; transform: scale(0.94) translateY(16px); } to { opacity: 1; transform: none; } }
+    .modal-card { background: var(--panel); width: 100%; max-width: 520px; border-radius: 22px; border: 1px solid var(--border); box-shadow: 0 20px 50px rgba(0,0,0,0.35); display: flex; flex-direction: column; max-height: min(86vh, 760px); overflow: hidden; animation: pop 0.4s var(--ease); }
+    .modal-header { padding: 18px 20px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; font-weight: 700; font-size: 16px; gap: 10px; }
+    .modal-header .ttl { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .modal-header .ttl > span:first-child { display: flex; align-items: center; gap: 10px; }
+    .modal-header .ttl > span:first-child::before { content: ""; width: 5px; height: 20px; border-radius: 3px; background: var(--accent); }
+    .x-close { background: none; border: none; color: var(--muted); cursor: pointer; width: 32px; height: 32px; border-radius: 9px; font-size: 16px; }
+    .x-close:hover { background: var(--surface); color: var(--text); }
+    .modal-body { padding: 14px 16px; overflow-y: auto; flex: 1; background: var(--bg); }
+    .modal-footer { padding: 14px 16px; border-top: 1px solid var(--border); display: flex; gap: 10px; }
+    .modal-footer .btn { flex: 1; }
+
+    .setlist-item { background: var(--card); border: 1px solid var(--border); padding: 8px 10px; border-radius: 12px; margin-bottom: 8px; display: flex; align-items: center; gap: 10px; transition: all 0.2s var(--ease); }
+    .setlist-item:hover { border-color: rgba(var(--accent-rgb), 0.45); transform: translateX(2px); }
+    .sl-num { width: 28px; height: 28px; border-radius: 9px; background: rgba(var(--accent-rgb), 0.1); color: var(--accent); font-weight: 700; font-size: 12px; display: grid; place-items: center; flex-shrink: 0; }
+    .sl-name { flex: 1; min-width: 0; font-weight: 600; font-size: 13.5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .sl-name.missing { color: var(--danger); font-weight: 500; }
+    .sl-pos { width: 52px !important; text-align: center; padding: 4px !important; height: 30px; font-size: 13px !important; }
+    .action-btn { padding: 0; width: 28px; height: 28px; font-size: 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface); color: var(--text); cursor: pointer; transition: all 0.2s; flex-shrink: 0; }
+    .action-btn:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+    .action-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+    .action-btn.del { color: var(--danger); border-color: rgba(220,38,38,0.3); background: rgba(220,38,38,0.07); }
+    .action-btn.del:hover { background: rgba(220,38,38,0.16); border-color: var(--danger); color: var(--danger); }
+
+    /* ---------- login ---------- */
+    .security-overlay { position: fixed; inset: 0; background: radial-gradient(circle at 20% 15%, rgba(var(--accent-rgb), 0.35), transparent 45%), rgba(25,25,27,0.97); z-index: 9999; display: flex; align-items: center; justify-content: center; padding: 20px; }
+    .login-box { background: #fff; color: #1f1f23; padding: 34px 28px; border-radius: 22px; width: 100%; max-width: 380px; text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.35); animation: pop 0.5s var(--ease); }
+    .login-box .korLogo { width: 62px; height: 62px; border-radius: 19px; background: #fafafa; margin: 0 auto 16px; }
+    .login-box .korLogo img { width: 38px; height: 38px; border-radius: 9px; }
+    .login-box h2 { margin: 0 0 4px; font-size: 22px; font-weight: 700; }
+    .login-box .sub { font-size: 11px; text-transform: uppercase; letter-spacing: 0.12em; color: #8a8a93; font-weight: 600; margin-bottom: 22px; }
+    .login-box .inp { background: #fff; color: #1f1f23; border-color: #e3e3e6; text-align: left; }
+    #loginMsg { color: #DC2626 !important; font-size: 12px; margin-top: 12px; min-height: 1.2em; }
+
+    /* ---------- toast + confirm ---------- */
+    #toasts { position: fixed; left: 0; right: 0; bottom: calc(18px + env(safe-area-inset-bottom)); z-index: 12000; display: flex; flex-direction: column; align-items: center; gap: 8px; pointer-events: none; padding: 0 16px; }
+    .toast { background: var(--dark); color: #fff; padding: 11px 18px; border-radius: 12px; font-size: 13.5px; font-weight: 500; box-shadow: 0 10px 30px rgba(0,0,0,0.35); border-left: 4px solid var(--ok); animation: toastIn 0.4s var(--ease); max-width: 460px; }
+    .toast.err { border-left-color: #ef4444; }
+    .toast.out { opacity: 0; transform: translateY(10px); transition: all 0.3s; }
+    @keyframes toastIn { from { opacity: 0; transform: translateY(14px) scale(0.96); } to { opacity: 1; transform: none; } }
+    #confirmModal { z-index: 11000; }
+    #confirmModal .modal-card { max-width: 400px; }
+    #confirmModal .modal-body { background: var(--panel); font-size: 14px; color: var(--text); }
+
+    /* ---------- responsive ---------- */
+    .mobile-visible { display: none !important; }
+    @media (max-width: 1000px) { .editor-sidebar { width: 250px; } .leftCol { width: 52%; } }
+
+    @media (max-width: 768px) {
+      .desktop-nav { display: none !important; }
+      .mobile-menu-btn { display: block !important; }
+      body { height: auto !important; min-height: 100vh; min-height: 100dvh; overflow-x: hidden; }
+      .app-wrap { min-height: 100dvh; }
+      .app-content { height: auto !important; overflow: visible !important; }
+      .mobile-visible { display: inline-flex !important; }
+      .app-header { padding: 0 14px; height: 56px; position: sticky; top: 0; }
+      .logo-area h1 { font-size: 15px; } .logo-area h1 small { display: none; }
+      .tab-pane { padding: 12px; }
+      #tab-editor { padding: 12px; }
+
+      .library-grid { display: block; height: auto; overflow: visible; }
+      .panel { height: 520px; margin-bottom: 16px; }
+      .panelBody { flex-direction: column; overflow-y: auto; }
+      .leftCol, .rightCol { width: 100%; height: auto; min-height: 220px; flex: none; }
+
+      .editor-layout { position: relative; height: auto !important; overflow: visible !important; }
+      .editor-sidebar { position: fixed; top: 56px; left: 0; width: 100%; height: calc(100dvh - 56px); z-index: 20; transition: transform 0.3s var(--ease); border-radius: 0; border: none; box-shadow: none; background: var(--bg); }
+      .editor-sidebar.mobile-collapsed { transform: translateX(-100%); }
+      .editor-main { width: 100%; height: auto !important; overflow: visible !important; }
+      .editor-toolbar { flex-direction: column; align-items: stretch; gap: 10px; }
+      .toolbar-group { justify-content: space-between; }
+      .editor-inputs { flex-direction: column; gap: 8px; }
+      .editor-inputs .inp { width: 100%; }
+      #keyInput { width: 100% !important; flex: none !important; }
+      .inp, #sharpFlatPref { font-size: 16px; }   /* stops iOS zooming into fields */
+      .editor-split { display: flex; flex-direction: column; overflow: visible; }
+      .editor-area, .preview-area { display: none; }
+      .editor-area.active-pane-mobile, .preview-area.active-pane-mobile { display: block; flex: none; height: auto !important; min-height: 60vh; overflow: visible; padding-bottom: 20px; }
+      #fileMeta { max-width: 100%; }
+    }
+    @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 0.01ms !important; animation-delay: 0ms !important; transition-duration: 0.01ms !important; } }
+  </style>
+</head>
+<body>
+
+  <div id="securityOverlay" class="security-overlay">
+    <div class="login-box">
+      <div class="korLogo"><img src="https://lh3.googleusercontent.com/d/1iLMCP2wh8e4BdxM_rds3W1GxkX0LVUqi=s220" alt="K" /></div>
+      <h2>Worship Unified</h2>
+      <div class="sub">Sign in to continue</div>
+      <input type="email" id="loginEmail" placeholder="Email" class="inp" style="margin-bottom: 10px;" autocomplete="username" />
+      <input type="password" id="loginPass" placeholder="Password" class="inp" autocomplete="current-password" />
+      <button id="loginBtn" class="btn btn-primary" style="width:100%; margin-top:18px; padding:12px;">Login</button>
+      <p id="loginMsg"></p>
+    </div>
+  </div>
+
+  <div id="setlistModal" class="modal-overlay hidden">
+     <div class="modal-card">
+        <div class="modal-header">
+           <div class="ttl">
+               <span>Setlist Manager</span>
+               <button onclick="window.regenerateSetlist()" class="btn btn-small" title="Fix IDs / Regenerate">♻️ Recycle</button>
+           </div>
+           <button class="x-close" onclick="window.closeSetlistModal()" aria-label="Close">✕</button>
+        </div>
+        <div class="modal-body" id="setlistBody"></div>
+        <div class="modal-footer">
+           <button class="btn" onclick="window.closeSetlistModal()">Cancel</button>
+           <button class="btn btn-primary" id="saveSetlistBtn">Save Setlist</button>
+        </div>
+     </div>
+  </div>
+
+  <div id="confirmModal" class="modal-overlay hidden" role="alertdialog" aria-modal="true" aria-labelledby="confirmTitle">
+     <div class="modal-card">
+        <div class="modal-header"><div class="ttl"><span id="confirmTitle">Are you sure?</span></div></div>
+        <div class="modal-body" id="confirmMsg"></div>
+        <div class="modal-footer">
+           <button class="btn" id="confirmNo">Cancel</button>
+           <button class="btn btn-primary" id="confirmYes">Confirm</button>
+        </div>
+     </div>
+  </div>
+  <div id="toasts" aria-live="polite"></div>
+
+  <div class="app-wrap">
+    <header class="app-header">
+       <div class="logo-area">
+          <div class="korLogo"><img src="https://lh3.googleusercontent.com/d/1iLMCP2wh8e4BdxM_rds3W1GxkX0LVUqi=s220" alt="K" /></div>
+          <h1>Worship Unified<small>Songs, setlists &amp; library</small></h1>
+       </div>
+
+       <div class="desktop-nav">
+           <button id="setlistBtn" class="btn btn-small">📜 Setlist</button>
+
+           <nav class="app-tabs">
+              <button class="tab-btn active" data-tab="editor" onclick="window.switchTab('editor')">Editor</button>
+              <button class="tab-btn" data-tab="library" id="libTabBtn" onclick="window.switchTab('library')">Library Management</button>
+           </nav>
+           <div class="theme-switch" role="group" aria-label="Colour theme">
+              <button type="button" class="theme-dot" data-theme="indigo" title="Indigo" aria-label="Indigo theme"></button>
+              <button type="button" class="theme-dot" data-theme="red" title="Red" aria-label="Red theme"></button>
+              <button type="button" class="theme-dot" data-theme="emerald" title="Emerald" aria-label="Emerald theme"></button>
+           </div>
+           <button id="themeToggleBtn" class="icon-btn" title="Toggle light / dark">🌙</button>
+           <button id="logoutBtn" class="icon-btn danger" title="Log Off">🚪</button>
+       </div>
+
+       <button id="mobileMenuTrigger" class="mobile-menu-btn" onclick="window.toggleMobileMenu()" aria-label="Menu">☰</button>
+
+       <div id="mobileDropdown" class="mobile-dropdown">
+           <button class="menu-item" onclick="window.openSetlistMobile()">📜 Setlist Manager</button>
+           <button class="menu-item" onclick="window.switchTabMobile('editor')">📝 Editor</button>
+           <button class="menu-item" id="mLibTabBtn" onclick="window.switchTabMobile('library')">📚 Library Management</button>
+           <div class="menu-item static"><span>🎨 Colour</span>
+              <span class="theme-switch" role="group" aria-label="Colour theme">
+                <button type="button" class="theme-dot" data-theme="indigo" aria-label="Indigo theme"></button>
+                <button type="button" class="theme-dot" data-theme="red" aria-label="Red theme"></button>
+                <button type="button" class="theme-dot" data-theme="emerald" aria-label="Emerald theme"></button>
+              </span>
+           </div>
+           <button class="menu-item" id="mThemeBtn">🌙 Light / Dark</button>
+           <button class="menu-item danger" onclick="window.logout()">🚪 Log Off</button>
+        </div>
+    </header>
+
+    <main class="app-content">
+       <div id="tab-editor" class="tab-pane active">
+          <div class="editor-layout">
+            <div class="editor-sidebar">
+              <div class="sidebar-header">
+                <input id="searchInput" placeholder="Search songs or artists..." class="inp" style="font-size:13px;" autocomplete="off" />
+                <button id="refreshBtn" class="btn btn-small" title="Refresh">↻</button>
+              </div>
+              <ul id="songListPane" class="song-list"></ul>
+              <div class="sidebar-footer">
+                <div id="loadMeta">Ready</div>
+              </div>
+            </div>
+
+            <div class="editor-main">
+              <div class="editor-toolbar">
+                 <div class="toolbar-group">
+                    <button id="mobileBackBtn" class="btn btn-small mobile-visible">← Back</button>
+                    <button id="newSongBtn" class="btn btn-small">＋ New</button>
+                    <button id="saveBtn" class="btn btn-small btn-primary">💾 Save (Dual Sync)</button>
+                    <button id="deleteBtn" class="btn btn-small btn-danger">Delete</button>
+                    <button id="formatMobileBtn" class="btn btn-small btn-secondary">📱 Wrap for Mobile</button>
+                 </div>
+
+                 <div class="toolbar-group mobile-visible" style="display:none; justify-content:center; gap:0;">
+                    <button id="mobileEditToggle" class="btn btn-small active" style="border-radius: 9px 0 0 9px; border-right:none;">Edit</button>
+                    <button id="mobilePreviewToggle" class="btn btn-small" style="border-radius: 0 9px 9px 0;">Preview</button>
+                 </div>
+                 <div class="toolbar-group">
+                    <label class="meta">Trans</label>
+                    <button id="transDown" class="btn btn-small">−</button>
+                    <span id="currentTrans">0</span>
+                    <button id="transUp" class="btn btn-small">+</button>
+                    <select id="sharpFlatPref" class="inp" title="Use sharps or flats">
+                        <option value="sharps">#</option>
+                        <option value="flats">b</option>
+                    </select>
+                 </div>
+              </div>
+
+              <div class="editor-inputs">
+                 <input id="titleInput" placeholder="Song Title" class="inp" style="flex:2" autocomplete="off" />
+                 <input id="artistInput" placeholder="Artist" class="inp" style="flex:1" autocomplete="off" />
+                 <select id="keyInput" class="inp" style="width:80px; flex:0 0 80px;" title="Key"></select>
+              </div>
+
+              <div class="editor-split">
+                 <textarea id="contentInput" class="mono-font editor-area" placeholder="Lyrics & Chords..." spellcheck="false"></textarea>
+                 <div id="previewArea" class="mono-font preview-area"></div>
+              </div>
+
+              <div class="editor-foot">
+                 <span id="fileMeta">-</span>
+                 <span id="saveState"></span>
+                 <span><kbd>Ctrl</kbd>+<kbd>S</kbd> to save</span>
+              </div>
+            </div>
+          </div>
+       </div>
+
+       <div id="tab-library" class="tab-pane">
+         <div class="library-grid">
+            <section class="panel public">
+               <div class="panelHead">
+                  <div class="t">PUBLIC Library</div>
+                  <div class="actions">
+                     <button id="pubRefreshBtn" class="btn btn-small">Refresh</button>
+                     <button id="pubSelectAllBtn" class="btn btn-small">All</button>
+                     <button id="pubClearBtn" class="btn btn-small">Clear</button>
+                  </div>
+               </div>
+               <div class="panelBody">
+                  <div class="leftCol">
+                     <input id="pubSearch" placeholder="Search filename..." class="inp" autocomplete="off" />
+                     <div id="pubList" class="list"></div>
+                  </div>
+                  <div class="rightCol">
+                      <div class="selectedCard">
+                        <div class="selHeader">
+                          <div class="title">Selected (Public)</div>
+                          <div class="selCount"><span id="pubSelCount">0</span></div>
+                        </div>
+                        <div id="pubSelList" class="selList"></div>
+                        <div class="selFooter">
+                            <div class="warnBox" id="pubWarn" style="display:none">
+                               <div class="checkRow">
+                                  <input type="checkbox" id="pubConfirmMove">
+                                  <label for="pubConfirmMove" style="margin:0">Confirm MOVE → Private</label>
+                               </div>
+                            </div>
+                            <button id="pubMoveBtn" class="btn btn-danger btn-small">Move Selected → Private</button>
+                            <div id="pubProgress" class="progress"></div>
+                            <div class="resultBox" id="pubResults"></div>
+                        </div>
+                      </div>
+                  </div>
+               </div>
+            </section>
+
+            <section class="panel private">
+               <div class="panelHead">
+                  <div class="t">PRIVATE Library</div>
+                  <div class="actions">
+                     <button id="priRefreshBtn" class="btn btn-small">Refresh</button>
+                     <button id="priSelectAllBtn" class="btn btn-small">All</button>
+                     <button id="priClearBtn" class="btn btn-small">Clear</button>
+                  </div>
+               </div>
+               <div class="panelBody">
+                  <div class="leftCol">
+                    <input id="priSearch" placeholder="Search filename..." class="inp" autocomplete="off" />
+                    <div id="priList" class="list"></div>
+                  </div>
+                  <div class="rightCol">
+                      <div class="selectedCard">
+                       <div class="selHeader">
+                          <div class="title">Selected (Private)</div>
+                          <div class="selCount"><span id="priSelCount">0</span></div>
+                       </div>
+                        <div id="priSelList" class="selList"></div>
+                        <div class="selFooter">
+                            <button id="priPublishBtn" class="btn btn-primary btn-small">Publish → Public (Copy)</button>
+                            <button id="priDeleteBtn" class="btn btn-danger btn-small">Delete Selected</button>
+                            <div id="priProgress" class="progress"></div>
+                            <div class="resultBox" id="priResults"></div>
+                        </div>
+                      </div>
+                  </div>
+                </div>
+            </section>
+        </div>
+       </div>
+    </main>
+  </div>
+
+  <script src="api.js"></script>
+  <script src="app.js"></script>
+  <script type="module" src="firebase-service.js"></script>
+</body>
+</html>
