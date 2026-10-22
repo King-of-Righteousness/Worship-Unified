@@ -76,7 +76,7 @@ onAuthStateChanged(window.auth, async (user) => {
                  
                  // --- LOG LOGIN EVENT & FIRESTORE TRACKER ---
                  // This now safely triggers ONLY if the user has a valid role and active account
-                 logLogin(db, user.uid, "Worship Editor Suite (Lyrics|Chords)");
+                 logLogin(firestore, user.uid, "Worship Editor Suite (Lyrics|Chords)");
                  
                  updateDoc(doc(firestore, "users", user.uid), {
                      lastLogin: firestoreTimestamp()
