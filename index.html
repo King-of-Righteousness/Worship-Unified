@@ -328,7 +328,14 @@
       .editor-area.active-pane-mobile, .preview-area.active-pane-mobile { display: block; flex: none; height: auto !important; min-height: 60vh; overflow: visible; padding-bottom: 20px; }
       #fileMeta { max-width: 100%; }
     }
-    @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 0.01ms !important; animation-delay: 0ms !important; transition-duration: 0.01ms !important; } }
+
+@media (prefers-reduced-motion: reduce) { 
+  *, *::before, *::after { 
+    animation-duration: 4s !important; 
+    transition-duration: 0.3s !important; 
+  } 
+}
+    
   </style>
 </head>
 <body>
